@@ -19,7 +19,7 @@ void TextIO::WriteTextToFile(FString& Text)
 	}else
 		UE_LOG(LogTemp, Warning, TEXT("no file"))*/
 	
-	FFileHelper::SaveStringToFile(Text,  *FPaths::ProjectLogDir().Append(TEXT("thesislog.txt")), FFileHelper::EEncodingOptions::AutoDetect, &IFileManager::Get(), FILEWRITE_Append);
+	FFileHelper::SaveStringToFile(Text,  *FPaths::ProjectLogDir().Append(TEXT("visualArtifactLog.txt")), FFileHelper::EEncodingOptions::AutoDetect, &IFileManager::Get(), FILEWRITE_Append);
 	//UE_LOG(LogTemp, Warning, TEXT("%s"), *FPaths::GameDevelopersDir())
 }
 
