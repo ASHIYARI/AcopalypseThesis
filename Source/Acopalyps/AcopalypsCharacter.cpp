@@ -13,6 +13,7 @@
 #include "AcopalypsSaveGame.h"
 #include "EnemyAICharacter.h"
 #include "LevelSpawner.h"
+#include "TextIO.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h" 
 
@@ -49,7 +50,10 @@ void AAcopalypsCharacter::BeginPlay()
 {
 	// Call the base class  
 	Super::BeginPlay();
-
+	
+	FString Foo(FString("\nNew Test Began! ") + FDateTime::Now().ToString());
+	TextIO::WriteTextToFile(Foo);
+	
 	//      Add Input Mapping Context
 	if (APlayerController* PlayerController = Cast<APlayerController>(Controller))
 	{
@@ -117,7 +121,7 @@ void AAcopalypsCharacter::SetupPlayerInputComponent(class UInputComponent* Playe
 		//Looking
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &AAcopalypsCharacter::Look);
 		//Slow Down Time
-		EnhancedInputComponent->BindAction(SlowDownTimeAction, ETriggerEvent::Triggered, this, &AAcopalypsCharacter::SlowDownTime);
+		EnhancedInputComponent->BindAction(SlowDownTimeAction, ETriggerEvent::Started, this, &AAcopalypsCharacter::SlowDownTime);
 		//Respawn
 		EnhancedInputComponent->BindAction(RespawnAction, ETriggerEvent::Triggered, this, &AAcopalypsCharacter::Respawn);
 		//Reset Level
@@ -157,13 +161,29 @@ void AAcopalypsCharacter::Move(const FInputActionValue& Value)
 
 void AAcopalypsCharacter::SlowDownTime()
 {
-	if(bTimeSlowed) return;
+	if(bSlowCooldown)
+	{
+		slowDownOnCooldownAttempts++;
+		FString Foo(FString("\nSlow mo on cooldown attempts: "));
+		Foo.AppendInt(slowDownOnCooldownAttempts); 
+		TextIO::WriteTextToFile(Foo);
+		return;
+	}
 	bTimeSlowed = true;
+	bSlowCooldown = true; 
 	SlowTimeTriggerEvent();
 	UGameplayStatics::SetGlobalTimeDilation(GetWorld(), 0.4);
 	GetWorldTimerManager().SetTimer(TimeTimerHandle, this, &AAcopalypsCharacter::ResumeTime, SlideTime, false);
 	CustomTimeDilation = 1.6f;
 	Gun->CustomTimeDilation = 1.6f;
+
+	slowDownCount++;
+	FString Foo(FString("\nSlow Mo Count: "));
+	Foo.AppendInt(slowDownCount); 
+	TextIO::WriteTextToFile(Foo);
+
+	FTimerHandle TimerHandle; 
+	GetWorldTimerManager().SetTimer(TimerHandle, this, &AAcopalypsCharacter::DisableCooldown, SlowMoCooldown); 
 }
 
 void AAcopalypsCharacter::ResumeTime()
@@ -289,6 +309,12 @@ float AAcopalypsCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Da
 			}
 			NumberOfActiveCombats = 0;
 			DeathEvent();
+			
+			deathCount++;
+			FString Foo(FString("\nDeath Count: "));
+			Foo.AppendInt(deathCount); 
+			TextIO::WriteTextToFile(Foo);
+			
 			//DetachFromControllerPendingDestroy();
 			DisableInput(Cast<APlayerController>(GetController()));
 			//GetCapsuleComponent()->SetCollisionProfileName("NoCollision");

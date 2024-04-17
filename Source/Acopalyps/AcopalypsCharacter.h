@@ -186,6 +186,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<UAcopalypsSaveGame> SaveGameClass;
 
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnSlowMoCooldownEnd(); 
+
 public:
 	UPROPERTY(VisibleAnywhere)
 	UAcopalypsSaveGame* SaveGame;
@@ -240,4 +243,19 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void SetLoadedLevels(TArray<FLevelID> LevelsToLoad);
+
+private:
+
+	bool bSlowCooldown = false; 
+
+	UPROPERTY(EditAnywhere)
+	float SlowMoCooldown = 2.f;
+
+	void DisableCooldown() { bSlowCooldown = false; OnSlowMoCooldownEnd(); }
+
+	int slowDownOnCooldownAttempts = 0;
+	int slowDownCount = 0;
+
+	int deathCount = 0;
+	
 };
