@@ -12,6 +12,7 @@
 #include "Engine/LocalPlayer.h"
 #include "Animation/AnimInstance.h"
 #include "Projectile.h"
+#include "TextIO.h"
 #include "Kismet/KismetMathLibrary.h"
 
 /** Fire standard barrel of the gun */
@@ -21,6 +22,14 @@ void AGun::Fire(TEnumAsByte<AMMO_TYPES> AmmoType)
 	if(CurrentMag==0)
 	{
 		EmptyMagFireAttemptEvent();
+		if(bHasReleasedFireBtn)
+		{
+			fireAttemptsNoAmmo++;
+			FString Foo(FString("\nShoot attempts no ammo: "));
+			Foo.AppendInt(fireAttemptsNoAmmo); 
+			TextIO::WriteTextToFile(Foo);
+			bHasReleasedFireBtn = false; 
+		}
 	}
 	if( Projectile->Class != nullptr && (CurrentMag > 0 || Projectile->Cost == 0) && bCanReload && GetOwner() != nullptr )
 	{
@@ -173,6 +182,7 @@ void AGun::AttachWeaponInputs(ACharacter* TargetCharacter)
 		{
 			// Fire
 			EnhancedInputComponent->BindAction(FireAction, ETriggerEvent::Started, this, &AGun::PrimaryFire);
+			EnhancedInputComponent->BindAction(FireAction, ETriggerEvent::Completed, this, &AGun::SetReleasedFireBtn);
 			EnhancedInputComponent->BindAction(AlternativeFireAction, ETriggerEvent::Started, this, &AGun::AlternateFire);
 			EnhancedInputComponent->BindAction(RapidFireAction, ETriggerEvent::Triggered, this, &AGun::RapidFire);
 			EnhancedInputComponent->BindAction(FlareFireAction, ETriggerEvent::Triggered, this, &AGun::FlareFire);

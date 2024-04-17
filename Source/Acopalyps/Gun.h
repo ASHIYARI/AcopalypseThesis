@@ -290,4 +290,11 @@ private:
 
 	/**Helper Functions */
 	FRotator RandomRotator(float Pitch, float Yaw, float Roll, float Interval) const;
+
+	int fireAttemptsNoAmmo = 0;
+
+	bool bHasReleasedFireBtn = true;
+
+	void SetReleasedFireBtn() { bHasReleasedFireBtn = true; }
+	
 };
